@@ -4,6 +4,7 @@ import com.udacity.pricing.domain.price.Price;
 import com.udacity.pricing.service.PriceException;
 import com.udacity.pricing.service.PricingService;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,8 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 /**
  * Implements a REST-based controller for the pricing service.
  */
-@RestController
-@RequestMapping("/services/price")
+@Controller
+//@RequestMapping("/services/price")
 public class PricingController {
 
     /**
@@ -22,7 +23,7 @@ public class PricingController {
      * @param vehicleId ID number of the vehicle for which the price is requested
      * @return price of the vehicle, or error that it was not found.
      */
-    @GetMapping
+//    @GetMapping
     public Price get(@RequestParam Long vehicleId) {
         try {
             return PricingService.getPrice(vehicleId);

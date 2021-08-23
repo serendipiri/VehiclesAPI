@@ -1,0 +1,10 @@
+insert into Price (id, currency, price, vehicle_id) values (1, 'USD', 50250.25, 1);
+insert into Price (id, currency, price, vehicle_id) values (2, 'USD', 75850.00, 2);
+insert into Price (id, currency, price, vehicle_id) values (3, 'USD', 120000.00, 3);
+insert into Price (id, currency, price, vehicle_id) values (4, 'USD', 85000.69, 4);
+insert into Price (id, currency, price, vehicle_id) values (5, 'TL', 550000.00, 5);
+insert into Price (id, currency, price, vehicle_id) values (6, 'TL', 730250.55, 6);
+insert into Price (id, currency, price, vehicle_id) values (7, 'TL', 675000.28, 7);
+insert into Price (id, currency, price, vehicle_id) values (8, 'TL', 675000.28, 8);
+insert into Price (id, currency, price, vehicle_id) values (9, 'EUR', 65000.47, 9);
+insert into Price (id, currency, price, vehicle_id) values (10, 'EUR', 52000.90, 10);
