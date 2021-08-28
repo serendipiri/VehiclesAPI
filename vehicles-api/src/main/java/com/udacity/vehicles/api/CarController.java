@@ -95,7 +95,7 @@ class CarController {
         Car newCar = carService.save(car);
 
         if (newCar.getId() != null) {
-            newCar.setPrice(priceRestTemplate.getNewPriceForCar(newCar.getId()));
+            newCar.setPrice(priceRestTemplate.getNewPriceForVehicle(newCar.getId()));
             //TODO: location 0-0 ise hata mesajı gönderilmeli
             newCar.setLocation(mapsRestTemplate.getAddress(newCar.getLocation()));
         }
