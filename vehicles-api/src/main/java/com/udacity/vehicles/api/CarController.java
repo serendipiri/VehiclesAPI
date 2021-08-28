@@ -4,6 +4,10 @@ package com.udacity.vehicles.api;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import com.udacity.vehicles.client.maps.Address;
+import com.udacity.vehicles.client.maps.MapsRestTemplate;
+import com.udacity.vehicles.client.prices.Price;
+import com.udacity.vehicles.client.prices.PriceRestTemplate;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.service.CarService;
 import java.net.URI;
@@ -12,8 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +32,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Implements a REST-based controller for the Vehicles API.
@@ -33,6 +43,13 @@ class CarController {
 
     private final CarService carService;
     private final CarResourceAssembler assembler;
+
+    @Autowired
+    MapsRestTemplate mapsRestTemplate;
+
+    @Autowired
+    PriceRestTemplate priceRestTemplate;
+
 
     CarController(CarService carService, CarResourceAssembler assembler) {
         this.carService = carService;
@@ -74,14 +91,20 @@ class CarController {
      */
     @PostMapping
     ResponseEntity<?> post(@Valid @RequestBody Car car) throws URISyntaxException {
-        /**
-         * TODO: Use the `save` method from the Car Service to save the input car.
-         * TODO: Use the `assembler` on that saved car and return as part of the response.
-         *   Update the first line as part of the above implementing.
-         */
-        Resource<Car> resource = assembler.toResource(new Car());
+
+        Car newCar = carService.save(car);
+
+        if (newCar.getId() != null) {
+            newCar.setPrice(priceRestTemplate.getNewPriceForCar(newCar.getId()));
+            //TODO: location 0-0 ise hata mesajı gönderilmeli
+            newCar.setLocation(mapsRestTemplate.getAddress(newCar.getLocation()));
+        }
+
+        Resource<Car> resource = assembler.toResource(newCar);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
+
     }
+
 
     /**
      * Updates the information of a vehicle in the system.

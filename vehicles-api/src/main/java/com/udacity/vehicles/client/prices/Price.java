@@ -14,6 +14,10 @@ public class Price {
     public Price() {
     }
 
+    public Price(Long vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
     public String getCurrency() {
         return currency;
     }
@@ -36,5 +40,10 @@ public class Price {
 
     public void setVehicleId(Long vehicleId) {
         this.vehicleId = vehicleId;
+    }
+
+    @Override
+    public String toString() {
+        return price + " " + currency;
     }
 }
