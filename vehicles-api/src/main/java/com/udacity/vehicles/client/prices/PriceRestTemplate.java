@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -16,18 +16,18 @@ public class PriceRestTemplate {
 
     private static final Logger log = LoggerFactory.getLogger(PriceRestTemplate.class);
 
-    private final ModelMapper mapper;
-
-    @Autowired
+    private ModelMapper mapper;
     private RestTemplate restTemplate;
 
     @Value("${pricing.endpoint}")
     String priceEndpoint;
 
-    public PriceRestTemplate(ModelMapper mapper) {
+    public PriceRestTemplate(ModelMapper mapper, RestTemplate restTemplate) {
         this.mapper = mapper;
+        this.restTemplate = restTemplate;
     }
 
+    //TODO: vehicleId null ken denenmeli, hata mesajları ayarlanmalı
     // POST request
     public String getNewPriceForVehicle(Long vehicleId) {
 
@@ -47,13 +47,22 @@ public class PriceRestTemplate {
     public String getPriceForVehicle(Long vehicleId) {
 
         String url = priceEndpoint + "/prices/" + vehicleId;
-        Price price = restTemplate.getForObject(url, Price.class);
-        if (price == null) {
-            throw new CarError("Price Not Found.");
+        try {
+            Price price = restTemplate.getForObject(url, Price.class);
+            return price.toString();
+        } catch (HttpClientErrorException e) {
+            if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
+                throw new CarError("Price Not Found with Vehicle ID: " + vehicleId);
+            }
         }
-
-        return price.toString();
+        return null;
     }
 
+
+    public void deletePrice(Long vehicleId) {
+
+        restTemplate.delete(priceEndpoint + "/prices/" + vehicleId);
+
+    }
 
 }

@@ -16,7 +16,8 @@ public class MapsRestTemplate {
 
     private static final Logger log = LoggerFactory.getLogger(MapsRestTemplate.class);
 
-    private final ModelMapper mapper;
+    @Autowired
+    private ModelMapper mapper;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -25,10 +26,7 @@ public class MapsRestTemplate {
     String mapEndpoint;
 
 
-    public MapsRestTemplate(ModelMapper mapper) {
-        this.mapper = mapper;
-    }
-
+    //TODO: location 0-0 ise hata mesajı gönderilmeli
     public Location getAddress(Location location) {
         try {
 

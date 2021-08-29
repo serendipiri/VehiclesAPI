@@ -23,13 +23,22 @@ public class PricingService {
         this.priceRepository = priceRepository;
     }
 
+    public Price getPrice(Long vehicleId) {
+        return priceRepository.findByVehicleId(vehicleId);
+    }
+
     /**
-     * Creates a new random price for given vehicle id
+     * Uses price if there is a price with given vehicleId
+     * Else Creates a new random price for given vehicleId
      *
      * @param vehicleId ID number of the vehicle the price is requested for.
      * @return price of the requested vehicle
      */
     public Price getNewPrice(Long vehicleId)  {
+        Price priceObj = priceRepository.findByVehicleId(vehicleId);
+        if (priceObj != null && priceObj.getPrice() != null) {
+            return priceObj;
+        }
         return priceRepository.save(new Price("USD", randomPrice(), vehicleId));
     }
 
@@ -42,5 +51,7 @@ public class PricingService {
                 .multiply(new BigDecimal(5000d)).setScale(2, RoundingMode.HALF_UP);
     }
 
-
+    public void deletePrice(Long vehicleId) {
+        priceRepository.deleteByVehicleId(vehicleId);
+    }
 }

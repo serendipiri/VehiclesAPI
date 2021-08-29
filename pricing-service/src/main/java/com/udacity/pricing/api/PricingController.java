@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
  * Implements a REST Data-based controller for the pricing service.
@@ -29,15 +29,13 @@ public class PricingController {
         this.pricingService = pricingService;
     }
 
-    //TODO: hata mesajı vs dönmek için burda geliştirme yapılabilir
-    // https://docs.spring.io/spring-data/rest/docs/current/reference/html/#customizing-sdr.overriding-sdr-response-handlers
-
+    //TODO: error handling
 
     @RequestMapping(method = POST, value = "/prices")
     public @ResponseBody ResponseEntity<?> createPrice(@RequestBody Price price) {
 
         try {
-            log.error("***************SERREN*************");
+            log.error("***************SEREN*************");
             if (price == null || price.getVehicleId() == null) {
                 throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Price Param Not Fetched Correctly");
@@ -58,14 +56,36 @@ public class PricingController {
      * @param vehicleId ID number of the vehicle for which the price is requested
      * @return price of the vehicle, or error that it was not found.
      */
-//    @GetMapping
-//    public Price get(@RequestParam Long vehicleId) {
-//        try {
-//            return PricingService.getPrice(vehicleId);
-//        } catch (PriceException ex) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.NOT_FOUND, "Price Not Found", ex);
-//        }
-//
-//    }
+    @RequestMapping(method = GET, value = "/prices/{vehicleId}")
+    public @ResponseBody ResponseEntity<?> getByVehicleId(@PathVariable Long vehicleId) {
+
+        Price price = null;
+        try {
+
+            price = pricingService.getPrice(vehicleId);
+
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Price Not Found", ex);
+        }
+
+        return new ResponseEntity<>(price, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = DELETE, value = "/prices/{vehicleId}")
+    public @ResponseBody ResponseEntity<?> deleteByVehicleId(@PathVariable Long vehicleId) {
+
+        try {
+
+            pricingService.deletePrice(vehicleId);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Price Not Found", ex);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

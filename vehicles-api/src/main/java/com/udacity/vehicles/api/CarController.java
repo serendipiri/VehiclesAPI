@@ -44,13 +44,6 @@ class CarController {
     private final CarService carService;
     private final CarResourceAssembler assembler;
 
-    @Autowired
-    MapsRestTemplate mapsRestTemplate;
-
-    @Autowired
-    PriceRestTemplate priceRestTemplate;
-
-
     CarController(CarService carService, CarResourceAssembler assembler) {
         this.carService = carService;
         this.assembler = assembler;
@@ -75,12 +68,7 @@ class CarController {
      */
     @GetMapping("/{id}")
     Resource<Car> get(@PathVariable Long id) {
-        /**
-         * TODO: Use the `findById` method from the Car Service to get car information.
-         * TODO: Use the `assembler` on that car and return the resulting output.
-         *   Update the first line as part of the above implementing.
-         */
-        return assembler.toResource(new Car());
+        return assembler.toResource(carService.findById(id));
     }
 
     /**
@@ -91,18 +79,9 @@ class CarController {
      */
     @PostMapping
     ResponseEntity<?> post(@Valid @RequestBody Car car) throws URISyntaxException {
-
-        Car newCar = carService.save(car);
-
-        if (newCar.getId() != null) {
-            newCar.setPrice(priceRestTemplate.getNewPriceForVehicle(newCar.getId()));
-            //TODO: location 0-0 ise hata mesajı gönderilmeli
-            newCar.setLocation(mapsRestTemplate.getAddress(newCar.getLocation()));
-        }
-
-        Resource<Car> resource = assembler.toResource(newCar);
+        car = carService.save(car);
+        Resource<Car> resource = assembler.toResource(car);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
-
     }
 
 
@@ -131,9 +110,8 @@ class CarController {
      */
     @DeleteMapping("/{id}")
     ResponseEntity<?> delete(@PathVariable Long id) {
-        /**
-         * TODO: Use the Car Service to delete the requested vehicle.
-         */
+        carService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
 }
