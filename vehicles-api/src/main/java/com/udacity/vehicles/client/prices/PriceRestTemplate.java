@@ -27,8 +27,7 @@ public class PriceRestTemplate {
         this.restTemplate = restTemplate;
     }
 
-    //TODO: vehicleId null ken denenmeli, hata mesajları ayarlanmalı
-    // POST request
+    // POST
     public String getNewPriceForVehicle(Long vehicleId) {
 
         String url = priceEndpoint + "/prices/";
@@ -36,7 +35,7 @@ public class PriceRestTemplate {
         price = restTemplate.postForObject(url, price, Price.class);
 
         if (price == null || price.getPrice() == null) {
-            throw new CarError("Price Not Found.");
+            throw new CarError("Price Not Created.");
         }
 
         return price.toString();
@@ -47,22 +46,27 @@ public class PriceRestTemplate {
     public String getPriceForVehicle(Long vehicleId) {
 
         String url = priceEndpoint + "/prices/" + vehicleId;
+        Price price = null;
+
         try {
-            Price price = restTemplate.getForObject(url, Price.class);
-            return price.toString();
+            price = restTemplate.getForObject(url, Price.class);
+
+            if (price != null && price.getPrice() != null) {
+                return price.toString();
+            }
+
         } catch (HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
                 throw new CarError("Price Not Found with Vehicle ID: " + vehicleId);
             }
         }
-        return null;
+
+        return "(consult price)";
     }
 
-
+    // DELETE
     public void deletePrice(Long vehicleId) {
-
         restTemplate.delete(priceEndpoint + "/prices/" + vehicleId);
-
     }
 
 }

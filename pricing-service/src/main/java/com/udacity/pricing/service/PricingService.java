@@ -3,6 +3,7 @@ package com.udacity.pricing.service;
 import com.udacity.pricing.domain.price.Price;
 import com.udacity.pricing.domain.price.PriceRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -51,7 +52,9 @@ public class PricingService {
                 .multiply(new BigDecimal(5000d)).setScale(2, RoundingMode.HALF_UP);
     }
 
+    @Transactional
     public void deletePrice(Long vehicleId) {
         priceRepository.deleteByVehicleId(vehicleId);
     }
+
 }

@@ -5,11 +5,14 @@ import com.udacity.vehicles.client.maps.MapsRestTemplate;
 import com.udacity.vehicles.client.prices.PriceRestTemplate;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
+
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implements the car service create, read, update or delete
@@ -88,6 +91,7 @@ public class CarService {
      * Deletes a given car by ID
      * @param id the ID number of the car to delete
      */
+    @Transactional(noRollbackFor = { SQLException.class })
     public void delete(Long id) {
 
         Car car = repository.findById(id).orElseThrow(CarNotFoundException::new);
