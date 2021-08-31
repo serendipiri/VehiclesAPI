@@ -1,5 +1,7 @@
 package com.udacity.vehicles.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
@@ -20,15 +22,19 @@ public class Location {
     private Double lon;
 
     @Transient
+    @ApiModelProperty(hidden=true)
     private String address;
 
     @Transient
+    @ApiModelProperty(hidden=true)
     private String city;
 
     @Transient
+    @ApiModelProperty(hidden=true)
     private String state;
 
     @Transient
+    @ApiModelProperty(hidden=true)
     private String zip;
 
     public Location() {

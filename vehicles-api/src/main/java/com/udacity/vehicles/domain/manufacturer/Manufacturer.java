@@ -1,5 +1,7 @@
 package com.udacity.vehicles.domain.manufacturer;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -11,6 +13,8 @@ public class Manufacturer {
 
     @Id
     private Integer code;
+
+    @ApiModelProperty(hidden=true)
     private String name;
 
     public Manufacturer() { }

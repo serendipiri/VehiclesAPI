@@ -9,6 +9,7 @@ import com.udacity.vehicles.client.maps.MapsRestTemplate;
 import com.udacity.vehicles.client.prices.Price;
 import com.udacity.vehicles.client.prices.PriceRestTemplate;
 import com.udacity.vehicles.domain.car.Car;
+import com.udacity.vehicles.service.CarNotFoundException;
 import com.udacity.vehicles.service.CarService;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +55,7 @@ class CarController {
      * Creates a list to store any vehicles.
      * @return list of vehicles
      */
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     Resources<Resource<Car>> list() {
         List<Resource<Car>> resources = carService.list().stream().map(assembler::toResource)
                 .collect(Collectors.toList());
@@ -66,7 +68,7 @@ class CarController {
      * @param id the id number of the given vehicle
      * @return all information for the requested vehicle
      */
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     Resource<Car> get(@PathVariable Long id) {
         return assembler.toResource(carService.findById(id));
     }
@@ -78,7 +80,7 @@ class CarController {
      * @throws URISyntaxException if the request contains invalid fields or syntax
      */
     @PostMapping
-    ResponseEntity<?> post(@Valid @RequestBody Car car) throws URISyntaxException {
+    ResponseEntity<?> post(@Valid @RequestBody Car car) throws URISyntaxException, CarNotFoundException {
         car = carService.save(car);
         Resource<Car> resource = assembler.toResource(car);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
@@ -92,7 +94,7 @@ class CarController {
      * @return response that the vehicle was updated in the system
      */
     @PutMapping("/{id}")
-    ResponseEntity<?> put(@PathVariable Long id, @Valid @RequestBody Car car) throws URISyntaxException {
+    ResponseEntity<?> put(@PathVariable Long id, @Valid @RequestBody Car car) throws CarNotFoundException {
         car.setId(id);
         car = carService.save(car);
         Resource<Car> resource = assembler.toResource(car);

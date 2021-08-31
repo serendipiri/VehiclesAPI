@@ -32,10 +32,19 @@ public class PriceRestTemplate {
 
         String url = priceEndpoint + "/prices/";
         Price price = new Price(vehicleId);
-        price = restTemplate.postForObject(url, price, Price.class);
+
+        try {
+
+            price = restTemplate.postForObject(url, price, Price.class);
+
+        } catch (HttpClientErrorException e) {
+            if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
+                throw new CarError("Price Couldn't Created with Vehicle ID: " + vehicleId);
+            }
+        }
 
         if (price == null || price.getPrice() == null) {
-            throw new CarError("Price Not Created.");
+            throw new CarError("Price Couldn't Created.");
         }
 
         return price.toString();

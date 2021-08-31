@@ -38,9 +38,6 @@ public class VehiclesApiApplicationTests {
 
     @Test
     public void getPrice() {
-//        String price = priceClient.getPrice(2L);
-//        assertThat(price, equals("USD 75850.00"));
-
         RestTemplate restTemplate = new RestTemplate();
         String url = priceEndpoint + "/prices/" + 2L;
         Price price = restTemplate.getForObject(url, Price.class);

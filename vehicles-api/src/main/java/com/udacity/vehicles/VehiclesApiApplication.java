@@ -2,6 +2,8 @@ package com.udacity.vehicles;
 
 import com.udacity.vehicles.domain.manufacturer.Manufacturer;
 import com.udacity.vehicles.domain.manufacturer.ManufacturerRepository;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;

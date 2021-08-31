@@ -5,14 +5,12 @@ import com.udacity.vehicles.client.maps.MapsRestTemplate;
 import com.udacity.vehicles.client.prices.PriceRestTemplate;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
-
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Implements the car service create, read, update or delete
@@ -21,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class CarService {
+
+    private static final Logger log = LoggerFactory.getLogger(CarService.class);
 
     private final CarRepository repository;
     private final PriceRestTemplate priceRestTemplate;
@@ -69,21 +69,35 @@ public class CarService {
      * @return the new/updated car is stored in the repository
      */
     public Car save(Car car) {
+        Car newCar = null;
 
-        car.setLocation(mapsRestTemplate.getAddress(car.getLocation()));
+        try {
+            car.setLocation(mapsRestTemplate.getAddress(car.getLocation()));
 
-        if (car.getId() != null) {
-            return repository.findById(car.getId())
-                    .map(carToBeUpdated -> {
-                        carToBeUpdated.setDetails(car.getDetails());
-                        carToBeUpdated.setLocation(car.getLocation());
-                        carToBeUpdated.setPrice(priceRestTemplate.getNewPriceForVehicle(car.getId()));
-                        return repository.save(carToBeUpdated);
-                    }).orElseThrow(CarNotFoundException::new);
+            if (car.getId() != null) {
+                return repository.findById(car.getId())
+                        .map(carToBeUpdated -> {
+                            carToBeUpdated.setDetails(car.getDetails());
+                            carToBeUpdated.setLocation(car.getLocation());
+                            carToBeUpdated.setPrice(priceRestTemplate.getNewPriceForVehicle(car.getId()));
+                            return repository.save(carToBeUpdated);
+                        }).orElseThrow(CarNotFoundException::new);
+            }
+
+            newCar = repository.save(car);
+            newCar.setPrice(priceRestTemplate.getNewPriceForVehicle(car.getId()));
+
+            log.info("Car saved with ID: " + car.getId());
+
+        } catch (Exception e) {
+            if (e instanceof CarNotFoundException || e instanceof CarError) {
+                log.error(e.getMessage());
+                throw e;
+            } else {
+                e.printStackTrace();
+                throw new CarError("Something went wrong - Saving a Car");
+            }
         }
-
-        Car newCar = repository.save(car);
-        newCar.setPrice(priceRestTemplate.getNewPriceForVehicle(car.getId()));
 
         return newCar;
     }
@@ -92,7 +106,7 @@ public class CarService {
      * Deletes a given car by ID
      * @param id the ID number of the car to delete
      */
-    @Transactional(noRollbackFor = { SQLException.class })
+    @Transactional
     public void delete(Long id) {
 
         Car car = repository.findById(id).orElseThrow(CarNotFoundException::new);
