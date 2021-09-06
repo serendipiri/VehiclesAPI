@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -34,12 +35,10 @@ import java.util.Collections;
 
 import static com.udacity.vehicles.domain.Condition.NEW;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -149,6 +148,36 @@ public class CarControllerTest {
         assertTrue(fetchedCar.getDetails().getModelYear().intValue() == car.getDetails().getModelYear().intValue());
         assertTrue(fetchedCar.getDetails().getEngine().equals(car.getDetails().getEngine()));
     }
+
+
+    @Test
+    public void updateCarTest() throws Exception {
+
+        Car car = getCar();
+        car.setId(carId);
+        car.setCondition(NEW);
+        car.getDetails().setManufacturer(new Manufacturer(103, "BMW"));
+        car.getDetails().setNumberOfDoors(3);
+        car.getDetails().setMileage(0);
+        car.getDetails().setExternalColor("red");
+
+        when(carService.save(any(Car.class))).thenReturn(car);
+
+        mvc.perform(
+                        put(new URI("/cars/" + car.getId()))
+                                .content(json.write(car).getJson())
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.condition", is(NEW.name())))
+                .andExpect(jsonPath("$.details.numberOfDoors", is(car.getDetails().getNumberOfDoors())))
+                .andExpect(jsonPath("$.details.mileage", is(car.getDetails().getMileage())))
+                .andExpect(jsonPath("$.details.manufacturer.code", is(car.getDetails().getManufacturer().getCode())))
+                .andExpect(jsonPath("$.details.externalColor", is(car.getDetails().getExternalColor())))
+                .andDo(print());
+
+    }
+
 
     /**
      * Tests the deletion of a single car by ID.
