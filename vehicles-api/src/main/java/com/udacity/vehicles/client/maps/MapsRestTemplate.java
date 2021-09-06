@@ -26,7 +26,6 @@ public class MapsRestTemplate {
     String mapEndpoint;
 
 
-    //TODO: location 0-0 ise hata mesajı gönderilmeli
     public Location getAddress(Location location) {
         try {
 

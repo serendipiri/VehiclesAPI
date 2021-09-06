@@ -36,6 +36,7 @@ public class PriceRestTemplate {
         try {
 
             price = restTemplate.postForObject(url, price, Price.class);
+            log.info("Price (" + price.toString() + ") created for vehicle with ID: " + vehicleId);
 
         } catch (HttpClientErrorException e) {
             if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
@@ -58,6 +59,7 @@ public class PriceRestTemplate {
         Price price = null;
 
         try {
+
             price = restTemplate.getForObject(url, Price.class);
 
             if (price != null && price.getPrice() != null) {
